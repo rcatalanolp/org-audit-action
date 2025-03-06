@@ -24,6 +24,8 @@ const ERROR_MESSAGE_TOKEN_UNAUTHORIZED =
 
 !fs.existsSync(DATA_FOLDER) && fs.mkdirSync(DATA_FOLDER);
 
+
+
 class CollectUserData {
   constructor(token, organization, enterprise, affiliation, options) {
     this.validateInput(organization, enterprise);
@@ -41,6 +43,8 @@ class CollectUserData {
     this.normalizedData = [];
     this.trackedLastRepoCursor = null;
 
+    this.RATE_LIMIT_DELAY = parseInt(core.getInput("rate_limit_delay") || process.env.RATE_LIMIT_DELAY || 1000); // Default to 1000ms
+    
     this.initiateGraphQLClient(token);
     this.initiateOctokit(token);
   }
@@ -54,6 +58,11 @@ class CollectUserData {
     }
   }
 
+async sleep() {
+  core.info(`⏳ Rate limiting: Waiting ${this.RATE_LIMIT_DELAY}ms before next request`);
+  return new Promise(resolve => setTimeout(resolve, this.RATE_LIMIT_DELAY));
+}
+  
   async createandUploadArtifacts() {
     if (!process.env.GITHUB_RUN_NUMBER) {
       return core.debug("not running in actions, skipping artifact upload");
@@ -118,6 +127,7 @@ class CollectUserData {
   }
 
   async requestEnterpriseData() {
+    await this.sleep();
     const { enterprise } = await this.graphqlClient(enterpriseQuery, {
       enterprise: this.enterprise
     });
@@ -130,6 +140,7 @@ class CollectUserData {
     collaboratorsCursor = null,
     repositoriesCursor = null
   ) {
+    await this.sleep();
     const { organization: data } = await this.graphqlClient(
       orgRepoAndCollaboratorQuery,
       {
@@ -144,6 +155,7 @@ class CollectUserData {
   }
 
   async requestSAMLidentities(organization, samlCursor = null) {
+    await this.sleep();
     const { organization: data } = await this.graphqlClient(orgSAMLquery, {
       organization,
       samlCursor
