@@ -304,6 +304,9 @@ async sleep() {
         }`
       );
 
+      await this.sleep();
+      
+
       if (repositoriesPage.pageInfo.hasNextPage === true) {
         await this.collectData(
           organization,
