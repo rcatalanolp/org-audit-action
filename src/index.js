@@ -43,7 +43,7 @@ class CollectUserData {
     this.normalizedData = [];
     this.trackedLastRepoCursor = null;
 
-    this.RATE_LIMIT_DELAY = parseInt(core.getInput("rate_limit_delay") || process.env.RATE_LIMIT_DELAY || 1000); // Default to 1000ms
+    this.RATE_LIMIT_DELAY = parseInt(core.getInput("rate_limit_delay") || process.env.RATE_LIMIT_DELAY || 15000); // Default to 15000ms
     
     this.initiateGraphQLClient(token);
     this.initiateOctokit(token);
@@ -209,6 +209,7 @@ async sleep() {
   }
 
   async collectData(organization, affiliation, collaboratorsCursor, repositoriesCursor) {
+    await this.sleep();
     let data;
     // fetch organization data
     try {
