@@ -43,10 +43,7 @@ class CollectUserData {
     this.normalizedData = [];
     this.trackedLastRepoCursor = null;
 
-    this.RATE_LIMIT_DELAY = parseInt(core.getInput("rate_limit_delay") || process.env.RATE_LIMIT_DELAY || 15000); // Default to 15000ms
-
-    core.info(`⏳ Rate limiting will be used`);
-    await this.sleep();
+    this.RATE_LIMIT_DELAY = parseInt(core.getInput("rate_limit_delay") || process.env.RATE_LIMIT_DELAY || 15000); // Default to 15000m
     
     this.initiateGraphQLClient(token);
     this.initiateOctokit(token);
@@ -62,8 +59,12 @@ class CollectUserData {
   }
 
 async sleep() {
+  try{
   core.info(`⏳ Rate limiting: Waiting ${this.RATE_LIMIT_DELAY}ms before next request`);
   return new Promise(resolve => setTimeout(resolve, this.RATE_LIMIT_DELAY));
+  }catch(error){
+    core.info(error)
+  }
 }
   
   async createandUploadArtifacts() {
