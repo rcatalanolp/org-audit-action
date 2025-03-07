@@ -44,6 +44,9 @@ class CollectUserData {
     this.trackedLastRepoCursor = null;
 
     this.RATE_LIMIT_DELAY = parseInt(core.getInput("rate_limit_delay") || process.env.RATE_LIMIT_DELAY || 15000); // Default to 15000ms
+
+    core.info(`⏳ Rate limiting will be used`);
+    await this.sleep();
     
     this.initiateGraphQLClient(token);
     this.initiateOctokit(token);
